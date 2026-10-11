@@ -1,0 +1,91 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
+  --color-ink-950: #0b0f17;
+  --color-ink-900: #111827;
+  --color-ink-800: #1b2433;
+  --color-ink-700: #2a3547;
+  --color-ink-600: #3d4a60;
+  --color-ink-400: #7c8aa3;
+  --color-ink-300: #a9b4c7;
+  --color-ink-200: #d6dce7;
+  --color-ink-100: #eef1f6;
+  --color-ink-50: #f7f8fb;
+  --color-ember-600: #d63d1e;
+  --color-ember-500: #f05133;
+  --color-ember-400: #f4785f;
+  --color-ember-100: #fde6e0;
+  --color-leaf-500: #22a06b;
+  --color-leaf-100: #dcf5e9;
+  --color-sky-500: #2f80ed;
+  --color-sky-100: #e1edfd;
+  --color-sun-500: #e6a700;
+  --color-sun-100: #fff5d6;
+  --color-plum-500: #8957e5;
+}
+
+html { scroll-behavior: smooth; }
+body { @apply bg-ink-50 text-ink-900 font-sans antialiased; }
+
+/* ---------- article ---------- */
+.article { @apply text-[17px] leading-[1.75] text-ink-800; }
+.article > * + * { @apply mt-5; }
+.article h2 { @apply text-3xl font-bold tracking-tight text-ink-950 mt-14 mb-2; }
+.article h3 { @apply text-xl font-semibold text-ink-950 mt-10; }
+.article p code, .article li code, .article td code { @apply font-mono text-[0.88em] bg-ink-100 text-ember-600 rounded px-1.5 py-0.5; }
+.article pre { @apply font-mono text-[14px] leading-relaxed bg-ink-950 text-ink-100 rounded-xl p-5 overflow-x-auto shadow-inner; }
+.article pre code { @apply bg-transparent text-inherit p-0; }
+.article ul { @apply list-disc pl-6 space-y-1.5; }
+.article ol { @apply list-decimal pl-6 space-y-1.5; }
+.article a { @apply text-sky-500 underline underline-offset-2; }
+.article strong { @apply text-ink-950 font-semibold; }
+.article table { @apply w-full text-[15px] border-collapse; }
+.article th { @apply text-left font-semibold border-b-2 border-ink-200 py-2 pr-4; }
+.article td { @apply border-b border-ink-100 py-2 pr-4 align-top; }
+.article blockquote { @apply border-l-4 rounded-r-xl px-5 py-4 border-sky-500 bg-sky-100/60 text-ink-900; }
+.article blockquote > * + * { @apply mt-2; }
+.article blockquote.tip { @apply border-leaf-500 bg-leaf-100/70; }
+.article blockquote.warn { @apply border-sun-500 bg-sun-100/80; }
+.article blockquote.danger { @apply border-ember-500 bg-ember-100/70; }
+.article blockquote.why { @apply border-plum-500 bg-[#f1ebfd]; }
+.article blockquote p:first-child strong:first-child { @apply uppercase tracking-wide text-[12px] block mb-1; }
+.article hr { @apply border-ink-200 my-10; }
+.article img { @apply rounded-xl; }
+.article .figure { @apply rounded-2xl border border-ink-200 bg-white p-5 overflow-x-auto; }
+.article .figure pre { @apply bg-transparent text-ink-800 p-0 shadow-none text-[13.5px]; }
+.article .figure .cap { @apply text-sm text-ink-400 mt-3; }
+
+/* ---------- terminal ---------- */
+.term { @apply font-mono text-[13px] leading-[1.5]; }
+.term .err { @apply text-[#ff7b72]; }
+.term .ok { @apply text-[#7ee787]; }
+.term .warn { @apply text-[#e3b341]; }
+.term .dim { @apply text-ink-400; }
+.term .add { @apply text-[#7ee787]; }
+.term .del { @apply text-[#ff7b72]; }
+.term .hunk { @apply text-[#79c0ff]; }
+.term .meta, .term .bold { @apply font-bold text-ink-100; }
+.term .head { @apply text-[#79c0ff] font-bold; }
+.term .branch { @apply text-[#7ee787] font-bold; }
+.term .remote { @apply text-[#ff7b72] font-bold; }
+.term .tag { @apply text-[#e3b341] font-bold; }
+.term .hash { @apply text-[#e3b341]; }
+
+/* ---------- editor ---------- */
+.cm-editor { @apply h-full text-[13px]; }
+.cm-editor .cm-scroller { @apply font-mono; }
+.cm-editor.cm-focused { outline: none; }
+.cm-conflict-ours { background: rgba(47, 128, 237, 0.18); }
+.cm-conflict-theirs { background: rgba(240, 81, 51, 0.18); }
+.cm-conflict-marker { background: rgba(255, 255, 255, 0.08); font-weight: 600; }
+
+/* ---------- misc ---------- */
+@utility btn { @apply inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors; }
+.btn-primary { @apply btn bg-ember-500 text-white hover:bg-ember-600; }
+.btn-ghost { @apply btn bg-transparent text-ink-800 hover:bg-ink-100; }
+.btn-dark { @apply btn bg-ink-900 text-white hover:bg-ink-800; }
+.btn-green { @apply btn bg-[#1f883d] text-white hover:bg-[#1a7f37]; }
+.kbd { @apply font-mono text-[11px] rounded border border-ink-300 bg-white px-1.5 py-0.5 text-ink-600; }
+.pill { @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold; }
