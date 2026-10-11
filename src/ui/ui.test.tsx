@@ -8,6 +8,8 @@ import { LandingPage } from '../pages/Landing'
 import { Hub } from './Hub'
 import { Session } from './session'
 import type { Lesson } from '../lessons/types'
+import { Article } from './Article'
+import { lessons } from '../lessons'
 
 // CodeMirror needs layout APIs jsdom lacks; the editor is exercised manually in the browser.
 vi.mock('./Editor', () => ({ Editor: () => <div data-testid="editor-stub" /> }))
@@ -104,5 +106,19 @@ describe('hub pane', () => {
     expect(s.world.hub.repos['ada/sunrise-bakery'].prs[0].state).toBe('merged')
     fireEvent.click(screen.getByText('Delete branch'))
     expect(within(document.body).queryByText('Delete branch')).toBeNull()
+  })
+})
+
+describe('articles', () => {
+  it('every lesson article renders and has a figure or table, a Why callout and an Up next', () => {
+    for (const l of lessons) {
+      const { container, unmount } = render(<Article md={l.article} />)
+      const html = container.innerHTML
+      expect(html.length, l.id).toBeGreaterThan(2000)
+      expect(/class="figure"|<table/.test(html), `${l.id} has no figure/table`).toBe(true)
+      expect(/<blockquote class="why"/.test(html), `${l.id} has no Why callout`).toBe(true)
+      expect(/Up next/.test(html), `${l.id} has no Up next`).toBe(true)
+      unmount()
+    }
   })
 })

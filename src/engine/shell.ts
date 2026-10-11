@@ -5,20 +5,21 @@ import { World, type OutLine, line, GitError } from './world'
 
 export interface ExecResult { lines: OutLine[]; clear?: boolean; open?: string; editor?: GitResult['editor'] }
 
+export interface Tok { t: string; quoted: boolean }
 /** Split a command line into argv, honoring quotes. Returns segments split on && and ; */
-export function tokenize(input: string): string[][] {
-  const segs: string[][] = [[]]
-  let cur = '', q: string | null = null, inTok = false
-  const push = () => { if (inTok) { segs[segs.length - 1].push(cur); cur = ''; inTok = false } }
+export function tokenize(input: string): Tok[][] {
+  const segs: Tok[][] = [[]]
+  let cur = '', q: string | null = null, inTok = false, quoted = false
+  const push = () => { if (inTok) { segs[segs.length - 1].push({ t: cur, quoted }); cur = ''; inTok = false; quoted = false } }
   for (let i = 0; i < input.length; i++) {
     const ch = input[i]
     if (q) { if (ch === q) q = null; else if (ch === '\\' && q === '"' && i + 1 < input.length) cur += input[++i]; else cur += ch; continue }
-    if (ch === '"' || ch === "'") { q = ch; inTok = true; continue }
+    if (ch === '"' || ch === "'") { q = ch; inTok = true; quoted = true; continue }
     if (ch === '\\' && i + 1 < input.length) { cur += input[++i]; inTok = true; continue }
     if (ch === ' ' || ch === '\t') { push(); continue }
     if (ch === '&' && input[i + 1] === '&') { push(); segs.push([]); i++; continue }
     if (ch === ';') { push(); segs.push([]); continue }
-    if (ch === '>') { push(); if (input[i + 1] === '>') { segs[segs.length - 1].push('>>'); i++ } else segs[segs.length - 1].push('>'); continue }
+    if (ch === '>') { push(); if (input[i + 1] === '>') { segs[segs.length - 1].push({ t: '>>', quoted: false }); i++ } else segs[segs.length - 1].push({ t: '>', quoted: false }); continue }
     cur += ch; inTok = true
   }
   push()
@@ -26,10 +27,10 @@ export function tokenize(input: string): string[][] {
 }
 
 const globRe = (g: string) => new RegExp('^' + g.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '[^/]*').replace(/\?/g, '.') + '$')
-function expandGlobs(w: World, argv: string[]): string[] {
+function expandGlobs(w: World, argv: Tok[]): string[] {
   const out: string[] = []
-  for (const a of argv) {
-    if (!/[*?]/.test(a) || a.startsWith('-')) { out.push(a); continue }
+  for (const { t: a, quoted } of argv) {
+    if (quoted || !/[*?]/.test(a) || a.startsWith('-')) { out.push(a); continue }
     const dir = a.includes('/') ? VFS.resolve(w.cwd, VFS.parent(a)) : w.cwd
     const pat = globRe(VFS.basename(a))
     const hits = w.vfs.isDir(dir) ? w.vfs.list(dir).filter((e) => pat.test(e.name) && (e.name.startsWith('.') === VFS.basename(a).startsWith('.'))).map((e) => (a.includes('/') ? VFS.parent(a) + '/' : '') + e.name) : []
@@ -68,11 +69,11 @@ export function exec(w: World, input: string): ExecResult {
   if (input.trim()) w.history.push(input.trim())
   try {
     for (const seg of segs) {
-      let argv = seg
+      let toks = seg
       let redirect: { mode: '>' | '>>'; target: string } | null = null
-      const ri = argv.findIndex((t) => t === '>' || t === '>>')
-      if (ri >= 0) { redirect = { mode: argv[ri] as '>' | '>>', target: argv[ri + 1] }; argv = argv.slice(0, ri); if (!redirect.target) throw new Error('zsh: parse error near `\\n\'') }
-      argv = expandGlobs(w, argv)
+      const ri = toks.findIndex((x) => !x.quoted && (x.t === '>' || x.t === '>>'))
+      if (ri >= 0) { redirect = { mode: toks[ri].t as '>' | '>>', target: toks[ri + 1]?.t }; toks = toks.slice(0, ri); if (!redirect.target) throw new Error('zsh: parse error near `\\n\'') }
+      const argv = expandGlobs(w, toks)
       const r = runOne(w, argv, res)
       if (redirect) {
         const abs = VFS.resolve(w.cwd, redirect.target)

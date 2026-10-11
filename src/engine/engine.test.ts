@@ -47,6 +47,26 @@ describe('shell + basics', () => {
     run(w, 'git restore a.txt')
     expect(last(w, 'cat a.txt')).toBe('hello')
   })
+  it('quoted globs are literal; unquoted expand', () => {
+    const w = fresh()
+    run(w, 'echo x > debug.log', 'echo "*.log" > .gitignore')
+    expect(last(w, 'cat .gitignore')).toBe('*.log')
+    expect(last(w, 'ls *.log')).toBe('debug.log')
+    expect(last(w, 'git status -s')).toBe('?? .gitignore')
+  })
+  it('old trees stay intact (tree objects are copied on put)', () => {
+    const w = fresh()
+    run(w, 'echo v2 > a.txt', 'git commit -am "v2"', 'git tag v2', 'echo v3 > a.txt', 'git commit -am "v3"')
+    expect(last(w, 'git show v2:a.txt')).toBe('v2')
+    expect(last(w, 'git show HEAD~2:a.txt')).toBe('hello')
+    expect(last(w, 'git log --oneline a.txt').split('\n').length).toBe(3)
+    expect(last(w, 'git blame a.txt')).toContain('v3')
+  })
+  it('leaving detached commits behind warns', () => {
+    const w = fresh()
+    run(w, 'git checkout HEAD', 'echo z > z.txt', 'git add .', 'git commit -m "orphan"')
+    expect(last(w, 'git switch main')).toContain('leaving 1 commit behind')
+  })
   it('errors', () => {
     const w = new World()
     expect(last(w, 'git status')).toContain('not a git repository')
@@ -129,6 +149,14 @@ describe('branches and merging', () => {
     run(w, 'git switch -c side', 'echo c > c.txt', 'git add .', 'git commit -m "add c"', 'git switch main')
     expect(last(w, 'git cherry-pick side')).toContain('add c')
     expect(last(w, 'ls')).toBe('a.txt  c.txt')
+  })
+  it('branch -f moves a branch', () => {
+    const w = fresh()
+    run(w, 'git branch side', 'echo b > b.txt', 'git add .', 'git commit -m "b"')
+    expect(last(w, 'git log --oneline side').split('\n').length).toBe(1)
+    run(w, 'git branch -f side HEAD')
+    expect(last(w, 'git log --oneline side').split('\n').length).toBe(2)
+    expect(last(w, 'git branch -f main side')).toContain('cannot force update')
   })
   it('tags and detached HEAD', () => {
     const w = fresh()

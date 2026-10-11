@@ -99,7 +99,8 @@ export class World {
   put(o: GitObject): string {
     const key = o.type === 'blob' ? 'blob\0' + o.content : o.type === 'tree' ? 'tree\0' + JSON.stringify(Object.entries(o.entries).sort()) : 'commit\0' + JSON.stringify([o.tree, o.parents, o.message, o.author, o.time])
     const h = hash(key)
-    if (!this.objects.has(h)) this.objects.set(h, o)
+    // store a copy: callers often keep mutating the tree they passed in
+    if (!this.objects.has(h)) this.objects.set(h, o.type === 'tree' ? { type: 'tree', entries: { ...o.entries } } : o)
     return h
   }
   get<T extends GitObject>(h: string): T {

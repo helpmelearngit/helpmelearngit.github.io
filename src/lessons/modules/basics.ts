@@ -201,6 +201,9 @@ caption: Each new commit points to its parent. HEAD and main ride along on the n
 - Under about 50 characters for the first line.
 - Say *why* when the *what* is not obvious: *Raise croissant price to cover butter cost*, not *Update menu*.
 
+> **Why**
+> Everything powerful in Git (branches, undo, code review, finding who broke what) is built on this chain of small, well-described commits. A history of ten tiny commits is worth more than one giant "updates" commit, because each link can be inspected, reverted or shared on its own.
+
 > **Tip**
 > Look at the project in the **graph pane**. Every commit you make appears as a node. Watching the graph grow as you type is the fastest way to build an intuition for what the commands do.
 

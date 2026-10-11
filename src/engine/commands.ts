@@ -185,8 +185,13 @@ function asciiLanes(w: World, hashes: string[]): string[] {
   return rows
 }
 
-function logCmd(w: World, r: Repo, a: Args): OutLine[] {
+function logCmd(w: World, r: Repo, a0: Args): OutLine[] {
+  let a = a0
   let starts: string[] = []
+  // positional args that are not revisions but existing paths are pathspecs (git allows omitting `--` when unambiguous)
+  const isPathArg = (p: string) => { try { resolve(w, r, p); return false } catch { try { const rp = rel(w, r, p); return rp in r.index || w.vfs.exists(r.root + '/' + rp) } catch { return false } } }
+  const pathArgs = a.pos.filter(isPathArg)
+  a = { ...a, pos: a.pos.filter((p) => !pathArgs.includes(p)), after: [...a.after, ...pathArgs] }
   const revs = a.pos.filter((p) => !p.includes('..'))
   const range = a.pos.find((p) => p.includes('..'))
   let hashes: string[]
@@ -565,10 +570,16 @@ function switchTo(w: World, r: Repo, name: string, out: OutLine[]) {
   const target = r.refs['refs/heads/' + name] ?? fail(`fatal: invalid reference: ${name}`)
   const cur = headBranch(r)
   if (cur === name) { say(out, `Already on '${name}'`); trackingLines(w, r, out); return }
-  switchTree(w, r, treeOf(w, headHash(r)), treeOf(w, target))
+  const fromHash = headHash(r)
+  const fromLabel = cur ?? short(fromHash ?? '')
+  switchTree(w, r, treeOf(w, fromHash), treeOf(w, target))
   if (cur) r.prevBranch = cur
+  if (!cur && fromHash && !Object.values(r.refs).some((h) => isAncestor(w, fromHash, h))) {
+    const orphans = commitsBetween(w, null, fromHash).filter((h) => !Object.values(r.refs).some((ref) => isAncestor(w, h, ref)))
+    say(out, `Warning: you are leaving ${orphans.length} commit${orphans.length === 1 ? '' : 's'} behind, not connected to\nany of your branches:\n\n${orphans.map((h) => `  ${short(h)} ${subject(w.commit(h).message)}`).join('\n')}\n\nIf you want to keep them by creating a new branch, this may be a good time\nto do so with:\n\n git branch <new-branch-name> ${short(fromHash)}\n`, 'warn')
+  }
   r.head = { branch: name }
-  logReflog(r, target, `checkout: moving from ${cur ?? short(headHash(r) ?? '')} to ${name}`)
+  logReflog(r, target, `checkout: moving from ${fromLabel} to ${name}`)
   say(out, `Switched to branch '${name}'`)
   trackingLines(w, r, out)
 }
@@ -765,7 +776,7 @@ export function git(w: World, argv: string[]): GitResult {
     case 'show': {
       const a = parse(rest)
       const spec = a.pos[0] ?? 'HEAD'
-      if (spec.includes(':')) { const [rv, p] = spec.split(':'); const t = treeOf(w, resolve(w, r, rv)); const h = t[rel(w, r, p)] ?? fail(`fatal: path '${p}' does not exist in '${rv}'`); say(out, w.blob(h)); return { lines: out } }
+      if (spec.includes(':')) { const [rv, p] = spec.split(':'); const t = treeOf(w, resolve(w, r, rv)); const h = t[rel(w, r, p)] ?? fail(`fatal: path '${p}' does not exist in '${rv}'`); say(out, w.blob(h).replace(/\n$/, '')); return { lines: out } }
       const h = resolve(w, r, spec)
       out.push(...logEntry(w, r, h, false))
       const c = w.commit(h)
@@ -813,6 +824,7 @@ export function git(w: World, argv: string[]): GitResult {
         r.upstream[b] = up; say(out, `branch '${b}' set up to track '${up}'.`); return { lines: out }
       }
       if (has(a, 'unset-upstream')) { delete r.upstream[a.pos[0] ?? headBranch(r)!]; return { lines: out } }
+      if (a.pos.length && has(a, 'f', 'force') && isBranch(r, a.pos[0])) { if (headBranch(r) === a.pos[0]) fail(`fatal: cannot force update the branch '${a.pos[0]}' used by worktree at '${r.root}'`); r.refs['refs/heads/' + a.pos[0]] = resolve(w, r, a.pos[1] ?? 'HEAD'); return { lines: out } }
       if (a.pos.length) { createBranch(w, r, a.pos[0], a.pos[1]); return { lines: out } }
       const cur = headBranch(r)
       if ('detached' in r.head) out.push([{ t: `* (HEAD detached at ${short(r.head.detached)})`, c: 'ok' }])

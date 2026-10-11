@@ -143,14 +143,16 @@ Untracked files:
 \`\`\`bash
 $ git add .gitignore
 $ git commit -m "Ignore logs, build output and OS files"
-[main 5d0c7a2] Ignore logs, build output and OS files
+[main 01eeb7f] Ignore logs, build output and OS files
  2 files changed, 3 insertions(+), 2 deletions(-)
- create mode 100644 .gitignore
  delete mode 100644 debug.log
+ create mode 100644 .gitignore
 $ git status
 On branch main
 
 nothing to commit, working tree clean
+$ ls
+build/  debug.log  hours.txt  menu.md  README.md  recipes/
 \`\`\`
 
 The log file is still on disk and Git will never mention it again.
@@ -371,7 +373,7 @@ Last lesson: the one Git message that frightens everyone, and why it should not.
 `
 
 const detached = `
-Maya wants the README exactly as it was at the \`v1.0\` release, for the archive, but with the typo fixed. Simple: go to the tag, fix, commit. Then Git prints a wall of text about a **detached HEAD** and most people's stomach drops. There is nothing wrong. You just have to know where you are standing.
+Maya wants the README exactly as it was at the \`v1.0\` release, for the archive, but with the typo fixed. Simple: go to the tag, fix, commit. Then Git prints a wall of text about a **detached HEAD** and most people's stomach drops. Nothing is wrong; you just have to know where you are standing.
 
 ## What HEAD normally points at
 
@@ -439,7 +441,7 @@ $ git reflog
 14deb6c (HEAD -> main) HEAD@{3}: commit: Lower baguette price for lunch deal
 \`\`\`
 
-\`HEAD@{1}\` means "where HEAD was one move ago", and that is the commit. Give it a branch, by hash or by reflog name, and it is safe:
+\`HEAD@{1}\` means "where HEAD was one move ago", and that is the commit. Give it a branch and it is safe:
 
 \`\`\`bash
 $ git switch -c v1-hotfix HEAD@{1}
@@ -461,19 +463,19 @@ $ git log --oneline --all
 ## Gotchas
 
 - The reflog is local to your machine. It is not pushed and nobody else has yours.
-- Unreferenced commits are cleaned up eventually (real Git keeps them roughly 90 days). Rescue sooner rather than later.
+- Unreferenced commits are cleaned up eventually; real Git keeps them about 90 days.
 - \`git switch -\` returns to the previous branch, handy after a quick look at a tag.
 
 ## What you have learned
 
-Look back at the whole course. You can turn a folder into a repository and make clean commits (Module 1). You can branch, merge and resolve conflicts (Module 2). You can rewrite your own history with rebase, undo mistakes with reset and revert, and recover with reflog (Module 3). You can push, pull and fetch (Module 4), review and merge pull requests (Module 5), contribute to a project you do not own through a fork (Module 6), and now keep a repository tidy, read its history, configure Git and rescue a lost commit. That is the working knowledge of a professional developer.
+You can turn a folder into a repository and make clean commits (Module 1). You can branch, merge and resolve conflicts (Module 2). You can rewrite your own history with rebase, undo mistakes with reset and revert, and recover with reflog (Module 3). You can push, pull and fetch (Module 4), review and merge pull requests (Module 5), contribute to a project you do not own through a fork (Module 6), and now keep a repository tidy, read its history, configure Git and rescue a lost commit. That is the working knowledge of a professional developer.
 
 ## Where to go next
 
 - Install Git on your own machine and run \`git init\` in a real folder. Everything here transfers exactly.
 - \`git help <command>\` opens the full manual for any command, offline.
 - The free *Pro Git* book at git-scm.com/book covers what this course skipped: interactive rebase, bisect, hooks, submodules.
-- When something goes wrong, remember the two commands that make Git safe: \`git status\` tells you where you are, \`git reflog\` tells you where you were.
+- When in doubt: \`git status\` tells you where you are, \`git reflog\` tells you where you were.
 `
 
 export const module: Module = {

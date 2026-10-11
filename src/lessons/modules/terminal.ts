@@ -94,6 +94,9 @@ The \`>\` arrow is called a **redirect**: it sends the output of a command into 
 > **Warning**
 > \`rm\` does not ask twice. This is exactly the kind of mistake Git exists to protect you from: once a file is committed, deleting it by accident is a thirty-second fix. Until then, be careful.
 
+> **Why**
+> Every Git lesson from here on starts with "edit a file, then…". \`echo\`, \`cat\` and the editor pane are how you make and inspect those edits, and \`rm\` is the mistake Git will soon let you undo.
+
 ## The editor pane
 
 Typing \`echo\` for every change gets old fast. The **Editor** tab above the terminal is a small code editor. Type \`code menu.md\` to open a file there, edit, and press **⌘S / Ctrl+S** to save. Real developers bounce between the editor and the terminal all day; you will too.

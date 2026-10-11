@@ -253,7 +253,7 @@ function Checks({ w, hub, hash }: { w: World; hub: HubRepo; hash: string }) {
 
 function NewPR({ w, hub, route, go, act }: { w: World; hub: HubRepo; route: Extract<HubRoute, { page: 'new-pr' }>; go: (r: HubRoute) => void; act: (fn: (w: World) => void) => boolean }) {
   const key = hubKey(hub)
-  const headRepos = [key, ...Object.values(w.hub.repos).filter((r) => r.forkOf === key).map(hubKey), ...(hub.forkOf ? [] : [])]
+  const headRepos = [key, ...Object.values(w.hub.repos).filter((r) => r.forkOf === key).map(hubKey)]
   const [headRepo, setHeadRepo] = useState(route.headRepo ?? (hub.forkOf && hub.owner === w.user.handle ? key : key))
   const baseRepoKey = hub.forkOf && hub.owner === w.user.handle ? hub.forkOf : key
   const baseRepo = w.hub.repos[baseRepoKey]
