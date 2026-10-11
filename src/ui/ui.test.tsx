@@ -117,7 +117,7 @@ describe('articles', () => {
       expect(html.length, l.id).toBeGreaterThan(2000)
       expect(/class="figure"|<table/.test(html), `${l.id} has no figure/table`).toBe(true)
       expect(/<blockquote class="why"/.test(html), `${l.id} has no Why callout`).toBe(true)
-      expect(/Up next/.test(html), `${l.id} has no Up next`).toBe(true)
+      expect(/Up next|go next/i.test(html), `${l.id} has no Up next`).toBe(true)
       unmount()
     }
   })

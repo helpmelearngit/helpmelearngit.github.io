@@ -321,6 +321,9 @@ $ git commit --amend -m "Add cinnamon roll to menu"
 
 Forgot a file? Stage it, then \`git commit --amend --no-edit\` folds it into the previous commit and keeps the message.
 
+> **Why**
+> Knowing one undo per area is what makes experimenting cheap. You can try an edit, stage it, even commit it, and still back out in seconds, so there is never a reason to keep a \`menu_backup_v2.md\` lying around again.
+
 > **Danger**
 > \`--amend\` *rewrites* the last commit: it gets a new hash. On your own machine that is harmless. Once a commit has been pushed somewhere others can see (Module 4), amending it causes trouble for them. Rule: amend only commits nobody else has yet.
 
