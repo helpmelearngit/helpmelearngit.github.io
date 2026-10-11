@@ -22,7 +22,9 @@ npm run build      # static site in dist/
 
 ## Deploy
 
-Pushes to `main` build and deploy through GitHub Actions (`.github/workflows/deploy.yml`). In the repository settings, set **Pages → Source** to **GitHub Actions** once.
+Pushes to `main` build and deploy through GitHub Actions (`.github/workflows/deploy.yml`).
+
+One-time setup (the Actions token cannot do this itself): **Settings → Pages → Build and deployment → Source → GitHub Actions**. Then re-run the latest workflow from the Actions tab, or push any commit.
 
 ## Contributing a lesson
 
